@@ -1,28 +1,27 @@
-import serial
 import pygame
 import serial.tools.list_ports
 import sys
 from time import time
-is_running = False
-value = "00000"
+
+from Classes.Time import Time
+from Classes.Display import Display
+
 running = True
-info="I"
-lastByte="@"
 porty = list(serial.tools.list_ports.comports())
 stacks = []
 for x in porty:
     print(x.description)
-    if x.description == "USB2.0-Serial" or x.description == "ttyACM0":
-        stacks.append(serial.Serial(x.device, 19200))
-        print("wchodzi")
+if x.description == "USB2.0-Serial" or x.description == "ttyACM0":
+    stacks.append(serial.Serial(x.device, 19200))
+print("wchodzi")
 print("wykryto" + str(len(stacks)) + " stacki")
+
 size = (1280, 720)
-screen = pygame.display.set_mode(size)
-white = (255, 255, 255)
-black = (0, 0, 0)
-moment = 0
-pygame.font.init()
-myfont = pygame.font.SysFont('Sans', 100)
+display = Display(size)
+
+stage = 0
+
+
 # 0 - rece na timery
 # 1 - rece na timerach
 # 2 - czas leci
@@ -31,12 +30,18 @@ myfont = pygame.font.SysFont('Sans', 100)
 debug = True
 if debug:
     while True:
+        try:
+            buffer = ser.readline().decode().rstrip('\r\n')
+            print(buffer)
+        except UnicodeDecodeError as e:
+            print(e)
+        pass
         for ser in stacks:
-            try:    
-                buffer = ser.readline().decode().rstrip('\r\n')
-                print(buffer)
-            except UnicodeDecodeError:
-                print("kuwa")
+            pass
+
+has_relay_started = False
+started_relay_time = time()
+
 time_start = 0
 act_time = 0
 end_state = []
@@ -49,19 +54,19 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.unicode == 'q':
                 running = False
-    
+
     state = []
     for ser in stacks:
         try:
             buffer = ser.readline().decode().rstrip('\r\n')
-            if buffer[0]=='"':
+            if buffer[0] == '"':
                 state.append(buffer)
             else:
-                state.append('"'+buffer)
-        except UnicodeDecodeError:
-            print("kuwa")
+                state.append('"' + buffer)
+        except UnicodeDecodeError as e:
+            print(e)
     count = 0
-    print(state, moment)
+    print(state, stage)
     czy = True
     czy2 = 0
     czy3 = True
@@ -72,67 +77,64 @@ while running:
             czy2 += 1
         if stat[7] != "@":
             czy3 = False
-        if stat[1] == " " and moment == 1:
-            moment = 2
-            time_start = time()
+        if stat[1] == " " and stage == 1:
+            stage = 2
+            time_start = Time(round(time()*100))
     if czy:
-        if moment == 0:
-            moment = 1
-    #print(czy2)
-    if czy2 > len(stacks)-2 and moment == 2:
+        if stage == 0:
+            stage = 1
+    # print(czy2)(czy2)
+    if czy2 > len(stacks) - 2 and stage == 2:
         czy = True
         for x in range(len(state)):
             if state[x][2:7] != latest_state[x][2:7] or state[x][7] == "@":
                 print(state[x])
                 czy = False
-        #print('siema')
+        # print('siema')
         if czy:
-            moment = 3
-            act_time = round(latest_state_time - time_start, 2)
+            stage = 3
+            act_time = time_start.difference_from_timestamp(time())
             print(act_time)
             end_state = state
             print(end_state)
-    if czy3 and (moment == 3 or moment == 4):
-        moment = 0
+    if czy3 and (stage == 3 or stage == 4):
+        stage = 0
     else:
         for x in state:
             if x[1] == " ":
                 count += 1
     if count > 1:
-        if moment == 2:
-            moment = 4
-    screen.fill(white)
+        if stage == 2:
+            stage = 4
+    display.clear()
     latest_state = state
     latest_state_time = time()
-    if moment == 0:
-        tekst = myfont.render("Ręce na stopery", False, black)
-        tekst_size = myfont.size("Ręce na stopery")
-        screen.blit(tekst, (size[0]/2-tekst_size[0]/2, size[1]/2-tekst_size[1]/2))
-    if moment == 1:
-        tekst = myfont.render("Start", False, black)
-        tekst_size = myfont.size("Start")
-        screen.blit(tekst, (size[0]/2-tekst_size[0]/2, size[1]/2-tekst_size[1]/2))
-    if moment == 2:
-        tekst = myfont.render("Układanie", False, black)
-        tekst_size = myfont.size("Układanie")
-        screen.blit(tekst, (size[0]/2-tekst_size[0]/2, size[1]/2-tekst_size[1]/2))
-    if moment == 3:
-        yyy = str(act_time)
-        tekst = myfont.render(yyy, False, black)
-        tekst_size = myfont.size(yyy)
-        screen.blit(tekst, (size[0]/2-tekst_size[0]/2, size[1]/2-tekst_size[1]/2))
-        final = ""
-        for timee in end_state:
-            final+= str(int(timee[2:7])/100) + ', '
-        final=final[:-2]
-        tekst2 = myfont.render(final, False, black)
-        tekst2_size = myfont.size(final)
-        screen.blit(tekst2, (size[0]/2-tekst2_size[0]/2, size[1]/2-tekst2_size[1]/2+tekst_size[1]*2))
-            
-    if moment == 4:
-        tekst = myfont.render("DNF", False, black)
-        tekst_size = myfont.size("DNF")
-        screen.blit(tekst, (size[0]/2-tekst_size[0]/2, size[1]/2-tekst_size[1]/2))
+    if stage == 0:
+        display.Text.print_string_as_main_text("Ręce na stopery")
+        has_relay_started = False
+
+    if stage == 1:
+        display.Text.print_string_as_main_text("Start")
+
+    if stage == 2:
+
+        display.Text.print_string_as_main_text("Układanie")
+
+        currTime = Time(round(time.time() - time_start * 100)).display_form()
+
+        display.Text.print_string_as_secondary_text(currTime)
+
+    if stage == 3:
+        team_time = act_time
+        display.Text.print_string_as_main_text(team_time)
+        times = []
+        for raw_time in end_state:
+            times.append(Time(raw_time))
+        final = ", ".join(times)
+
+    if stage == 4:
+        display.Text.print("DNF")
     pygame.display.update()
+
 pygame.quit()
 sys.exit()
