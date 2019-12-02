@@ -1,0 +1,18 @@
+<nb-layout>
+
+  <nb-layout-header fixed>
+    <h1 style="width:100%;text-align:center">Maszyna</h1>
+  </nb-layout-header>
+
+  <nb-layout-column>
+    <div [@routeAnimations]="prepareRoute(outlet)">
+      <router-outlet #outlet="outlet"></router-outlet>
+    </div>
+
+  </nb-layout-column>
+
+  <!-- <nb-layout-footer fixed> -->
+  <!-- Insert footer here -->
+  <!-- </nb-layout-footer>  -->
+
+</nb-layout>
