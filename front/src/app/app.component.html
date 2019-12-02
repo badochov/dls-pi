@@ -1,12 +1,13 @@
 <nb-layout>
 
   <nb-layout-header fixed>
-    <h1 style="width:100%;text-align:center">Maszyna</h1>
+    <h1 style="width:100%;text-align:center">Drużyny</h1>
   </nb-layout-header>
 
   <nb-layout-column>
-    <div [@routeAnimations]="prepareRoute(outlet)">
-      <router-outlet #outlet="outlet"></router-outlet>
+    <div>
+      <app-text></app-text>
+      <app-stack-wrapper></app-stack-wrapper>
     </div>
 
   </nb-layout-column>

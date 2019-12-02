@@ -1,4 +1,4 @@
 export interface Stack {
-    state: number;
-    time: string;
+  state: number;
+  time: string;
 }

@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { ApiService } from '../api.service';
-import { Stack } from '../stack.model';
-import { Observable } from 'rxjs';
-
+import {Component, OnInit} from '@angular/core';
+import {ApiService} from '../api.service';
+import {Stack} from '../stack.model';
+import {Observable} from 'rxjs';
 
 
 @Component({

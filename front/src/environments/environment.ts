@@ -4,8 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: "https://api.adambuczek.com/api",
-  apiToken: "jf4WSD36OfhcN4114csvphqeYDeBcvKknZTv927uudBck5Cklnusw8FexI6t",
+  socketConfig: { url: 'http://localhost:8988', options: {} }
 };
 
 /*

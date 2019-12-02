@@ -1,3 +1,4 @@
 <div>
-    <stack *ngFor="let stack of stacks | async;" [stack]="stack"></stack>
+  <app-stack *ngFor="let stack of stacks | async;" [stack]="stack">
+  </app-stack>
 </div>

@@ -1,5 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { Stack } from '../stack.model';
+import {Component, OnInit, Input} from '@angular/core';
+import {Stack} from '../stack.model';
 
 @Component({
   selector: 'app-stack',
@@ -8,7 +8,9 @@ import { Stack } from '../stack.model';
 })
 export class StackComponent implements OnInit {
   @Input() stack: Stack;
-  constructor() { }
+
+  constructor() {
+  }
 
   ngOnInit() {
   }
