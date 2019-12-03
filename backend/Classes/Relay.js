@@ -1,4 +1,4 @@
-const Stack = require('.Stack');
+const Stack = require('./Stack');
 
 module.exports = class Relay {
     stacks;
