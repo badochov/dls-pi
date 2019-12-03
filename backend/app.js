@@ -1,7 +1,8 @@
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
-const Arduino = require('./Classes/Arduino');
+const Stack = require('./Classes/Stack');
+const Relay = require('./Classes/Relay');
 
 // const app = express();
 // const server = http.Server(app);
@@ -19,16 +20,14 @@ const Arduino = require('./Classes/Arduino');
 // });
 
 
-const sendMessage = (sockets, msg) => {
-    sockets.forEach((socket) => socket.emit(msg))
-};
-
 (async () => {
 
-    const arduinos = await Arduino.getArduinos();
+    const stacks = await Stack.getStacks();
+
+    const relay = Relay(stacks, sockets);
 
     setInterval(() => {
-        arduinos.forEach((a) => console.log(a.time, a.state))
+        relay.tick();
     }, 50)
 })();
 

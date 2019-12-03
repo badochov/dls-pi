@@ -1,7 +1,13 @@
 const serialPort = require('serialport');
+const SECOND = 100;
+const MINUTE = 60 * SECOND;
+const ten = (x) => {
+    if (x < 10)
+        return " " + x;
+    return "" + x;
+}
 
-
-class Arduino {
+module.exports = class Stack {
     data = "I00000@0";
     prevData = "I00000@0";
     port;
@@ -20,9 +26,26 @@ class Arduino {
         this.port.on("data", this.onData.bind(this))
     }
 
+    static preetifyTime(time) {
+        const minutes = Math.floor(time / MINUTE);
+        time %= MINUTE;
+        const seconds = Math.floor(time / SECOND);
+        time %= SECOND;
+        const millis = time;
 
-    convertTime(raw) {
-        const rawTime = this.timePart(this.data);
+        let timeString = "";
+
+        if (minutes) {
+            timeString += minutes + ":" + ten(seconds);
+        } else {
+            timeString += seconds
+        }
+        timeString += "." + ten(millis);
+        return timeString;
+    }
+
+    timeToInt(raw) {
+        const rawTime = this.timePart(raw);
         return rawTime;
     }
 
@@ -35,11 +58,12 @@ class Arduino {
     }
 
     get time() {
-        return this.convertTime(this.data);
+        const timeInt = this.timeToInt(this.data);
+        return Stack.preetifyTime(timeInt);
     }
 
     get state() {
-        const states = Arduino.states;
+        const states = Stack.states;
         const currState = this.statePart(this.data);
 
         if (currState == "A")
@@ -78,27 +102,25 @@ class Arduino {
         return false;
     }
 
-    static async getArduinos() {
+    static async getStacks() {
         try {
             const ports = await serialPort.list();
 
-            let arduinos = [];
+            let stacks = [];
             for (const port of ports) {
                 const pnpId = port.pnpId ? port.pnpId : "";
 
                 if (pnpId.match(/USB2\.0-Serial/) || pnpId.match(/ttyACM0/)) {
                     console.log(port);
-                    const arduinoPort = new serialPort(port.path, {baudRate: Arduino.BAUDRATE});
-                    const arduino = new Arduino(arduinoPort);
-                    arduinos.push(arduino)
+                    const stackPort = new serialPort(port.path, {baudRate: Stack.BAUDRATE});
+                    const stack = new Stack(stackPort);
+                    stacks.push(stack)
                 }
             }
-            return arduinos;
+            return stacks;
 
         } catch (err) {
             console.error(err)
         }
     }
 }
-
-module.exports = Arduino
