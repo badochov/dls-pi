@@ -1,4 +1,5 @@
 <div class="stack-wrapper">
-  <svg-icon src="assets/stack.svg" [applyCss]="true" class="stack-icon {{stack.state}}"></svg-icon>
+  <svg-icon [applyCss]="true" src="assets/stack.svg" class="stack-icon state-{{stack.state}}" [svgStyle]="{ 'width.px':150 }"></svg-icon>
+  <br>
   <span class="time">{{stack.time}}</span>
 </div>

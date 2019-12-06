@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  socketConfig: { url: 'http://localhost:8988', options: {} }
+  socketConfig: { url: 'http://localhost:3000', options: {} }
 };
 
 /*
