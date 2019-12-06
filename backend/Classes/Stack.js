@@ -3,9 +3,11 @@ const SECOND = 100;
 const MINUTE = 60 * SECOND;
 const ten = (x) => {
     if (x < 10)
-        return " " + x;
+        return "0" + x;
     return "" + x;
 }
+//todo add support for turned off timer
+
 
 module.exports = class Stack {
     data = "I00000@0";
@@ -14,6 +16,7 @@ module.exports = class Stack {
 
     static get states() {
         return {
+            "off": -1,
             "unready": 0,
             "ready": 1,
             "solving": 2,
@@ -27,6 +30,8 @@ module.exports = class Stack {
     }
 
     static preetifyTime(time) {
+        if (time === -1)
+            return "-:--.--";
         const minutes = Math.floor(time / MINUTE);
         time %= MINUTE;
         const seconds = Math.floor(time / SECOND);
@@ -46,7 +51,9 @@ module.exports = class Stack {
 
     timeToInt(raw) {
         const rawTime = this.timePart(raw);
-        return rawTime;
+        if (rawTime === ":--.-")
+            return -1;
+        return parseInt(rawTime[0]) * MINUTE + parseInt(rawTime.slice(1));
     }
 
     timePart(data) {
@@ -66,14 +73,17 @@ module.exports = class Stack {
         const states = Stack.states;
         const currState = this.statePart(this.data);
 
-        if (currState == "A")
+        if (currState === "A")
             return states.ready;
         const currTime = this.timePart(this.data);
         const prevTime = this.timePart(this.prevData);
 
-        if (currTime != prevTime)
+
+        const prevState = this.statePart(this.prevData);
+
+        if (prevState === "A" || prevTime !== currTime)
             return states.solving;
-        if (currTime == "00000")
+        if (currTime === "00000")
             return states.unready;
         return states.solved;
     }

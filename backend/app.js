@@ -42,14 +42,13 @@ server.listen(port, () => {
     )
     try {
         const relay = new Relay(stacks, sockets);
+        setInterval(() => {
+            relay.tick();
+        }, 50)
     } catch (e) {
         console.log(e);
         close();
     }
-
-    setInterval(() => {
-        relay.tick();
-    }, 50)
 
 
 })();

@@ -18,4 +18,8 @@ export class ApiService {
   public getText(): Observable<string> {
     return this.socket.fromEvent('text');
   }
+
+  public getPhase(): Observable<string> {
+    return this.socket.fromEvent('phase');
+  }
 }
