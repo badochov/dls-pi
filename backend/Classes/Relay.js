@@ -113,12 +113,26 @@ module.exports = class Relay {
     }
 
     solvingPhase(states) {
+        const size = states.length;
         const solvingCount = states.reduce((sum, state) => sum + (state === Stack.states.solving ? 1 : 0), 0);
-        console.log(states);
+        // console.log(solvingCount);
         switch (solvingCount) {
             case 0:
                 this.stopTime = Date.now();
-                this.phase = Relay.phases.solved;
+                let readyIndex = states.indexOf(Stack.states.ready);
+                if (readyIndex === -1)
+                    readyIndex = size;
+                console.log(readyIndex);
+                for (let i = 0; i < readyIndex; i++) {
+                    if (states[i] !== Stack.states.solved) {
+                        this.phase = Relay.phases.DNF;
+                        break;
+                    }
+                }
+                if (this.phase !== Relay.phases.DNF) {
+                    if (readyIndex === size)
+                        this.phase = Relay.phases.solved;
+                }
                 break;
             case 1:
                 const solvingIndex = states.indexOf(Stack.states.solving);
@@ -128,7 +142,6 @@ module.exports = class Relay {
                         break;
                     }
                 }
-                const size = states.length;
                 for (let i = solvingIndex + 1; i < size; i++) {
                     if (states[i] !== Stack.states.ready) {
                         this.phase = Relay.phases.DNF;
