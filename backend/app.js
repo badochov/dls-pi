@@ -1,7 +1,7 @@
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
-const Stack = require('./Classes/Stack');
+const Stacks = require('./Classes/Stack');
 const Relay = require('./Classes/Relay');
 
 const app = express();
@@ -21,9 +21,9 @@ server.listen(port, () => {
 
 (async () => {
 
-    const stacks = await Stack.getStacks();
+    const stacks = await Stacks.getStacks();
     const close = () => {
-        stacks.forEach(stack => stack.close());
+        stacks.forEach((stack) => stack.close());
         server.close();
         process.exit();
     }
@@ -34,11 +34,11 @@ server.listen(port, () => {
     stdin.setEncoding("utf8");
 
     stdin.on("data", (data) => {
-            console.log(data);
-            if (data === "q") {
-                close();
-            }
+        console.log(data);
+        if (data.toString() === "q") {
+            close();
         }
+    }
     )
     try {
         const relay = new Relay(stacks, sockets);

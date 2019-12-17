@@ -1,14 +1,8 @@
 const Stack = require('./Stack');
+const Helpers = require('./Helpers');
 
 module.exports = class Relay {
     stacks;
-    /**
-     * 0 - "Ręce na stopery"
-     * 1 - "Start"
-     * 2 - "Układanie"
-     * 3 - "Stop"
-     * 4 - "DNF"
-     */
     phase = 0;
     startTime = 0;
     stopTime = 0;
@@ -16,11 +10,18 @@ module.exports = class Relay {
 
 
     static get phases() {
-        return {unready: 0, ready: 1, solving: 2, solved: 3, DNF: 4};
+        return {
+            unready: 0,
+            ready: 1,
+            solving: 2,
+            solved: 3,
+            DNF: 4,
+        };
     }
 
 
     text() {
+        dataString
         switch (this.phase) {
             case Relay.phases.unready:
                 return "Ręce na timery";
@@ -45,7 +46,7 @@ module.exports = class Relay {
     }
 
     get time() {
-        const timeInt = Math.round((this.stopTime - this.startTime) / 10);
+        const timeInt = Helpers.roundTime(this.stopTime - this.startTime);
         return Stack.preetifyTime(timeInt)
     }
 
@@ -55,7 +56,7 @@ module.exports = class Relay {
 
     sendStacks() {
         const stacks = [];
-        this.stacks.forEach(stack => stacks.push({time: stack.time, state: stack.state}));
+        this.stacks.forEach(stack => stacks.push({ time: stack.time, state: stack.state }));
         this.sendMessage("stacks", stacks)
     }
 
